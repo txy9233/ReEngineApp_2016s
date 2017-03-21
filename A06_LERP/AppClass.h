@@ -18,7 +18,7 @@ class AppClass : public ReEngAppClass
 	vector3 translation;
 	float mapValue;
 	matrix4 m_m4Model;
-	float mappedValue;
+	//float mappedValue; // from when I was trying to use MapValue but failed and came up with teh current solution
 public:
 	typedef ReEngAppClass super;
 	/*

@@ -12,7 +12,8 @@ void AppClass::InitVariables(void)
 	m_v4ClearColor = vector4(REBLACK, 1); // Set the clear color to black
 
 	m_pMeshMngr->LoadModel("Sorted\\WallEye.bto", "WallEye");
-	m_pMeshMngr->LoadModel("BackedUp\\Sphere.obj", "Sphere");
+	
+	
 	fDuration = 1.0f;
 	/*locations[] {
 		vector3(-4.0f,-2.0f, 5.0f),
@@ -40,7 +41,7 @@ void AppClass::InitVariables(void)
 	locations[10] = vector3(1.0f, 3.0f, -5.0f);
 	locCounter = 0; // used for stepping through array for values
 	mapValue = 0;
-	m_m4Model = IDENTITY_M4;
+	m_m4Model = IDENTITY_M4; // used for translation of the character
 }
 
 void AppClass::Update(void)
@@ -64,13 +65,10 @@ void AppClass::Update(void)
 
 #pragma region Your Code goes here
 	m_pMeshMngr->SetModelMatrix(IDENTITY_M4, "WallEye");
-	//for (int i = 0; i < 11; i++) {
-	//	//matrix4 transform = glm::translate(locations[i]);
-	//	m_pMeshMngr->SetModelMatrix(transform, "Sphere");
-	//} I was trying to figure out how to draw the spheres but couldn't
+
 	
 	// lerp the two locations from the array, set a mat4 equal to the returned vec3
-	
+	// mapValue isn't actually a mapped value, I was trying to use it but couldnt get wrap my head around how it would come in handy
 	if (locCounter == 10) { // special case - manually input the positions in the array to calc for
 			translation = glm::lerp(locations[locCounter], locations[0], mapValue); 
 			
@@ -80,7 +78,7 @@ void AppClass::Update(void)
 					
 	}	
 	mapValue += fTimeSpan; // move along the scaled value at this time until t = 1	
-	m_m4Model = glm::translate(translation);
+	m_m4Model = glm::translate(translation); 
 	m_pMeshMngr->SetModelMatrix(m_m4Model, "WallEye");
 	
 	if (mapValue >= fDuration)
@@ -99,7 +97,12 @@ void AppClass::Update(void)
 #pragma region Does not need changes but feel free to change anything here
 	//Adds all loaded instance to the render list
 	m_pMeshMngr->AddInstanceToRenderList("ALL");
-
+	for (int i = 0; i < 11; i++) {
+		matrix4 transform = glm::translate(locations[i]);
+		transform = glm::scale(transform, vector3(0.1f,0.1f,0.1f));
+		m_pMeshMngr->AddSphereToRenderList(transform, RERED, 1);
+		
+	}
 	//Indicate the FPS
 	int nFPS = m_pSystem->GetFPS();
 
@@ -114,6 +117,9 @@ void AppClass::Update(void)
 	m_pMeshMngr->PrintLine("");
 	m_pMeshMngr->Print("fRunTime:");
 	m_pMeshMngr->Print(std::to_string(fRunTime));
+	m_pMeshMngr->PrintLine("");
+	m_pMeshMngr->Print("Interval:");
+	m_pMeshMngr->Print(std::to_string(mapValue));
 	
 #pragma endregion
 }
