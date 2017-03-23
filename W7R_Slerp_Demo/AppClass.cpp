@@ -1,28 +1,18 @@
 #include "AppClass.h"
 void AppClass::InitWindow(String a_sWindowName)
 {
-	super::InitWindow("Sandbox"); // Window Name
-
-	// Set the clear color based on Microsoft's CornflowerBlue (default in XNA)
-	//if this line is in Init Application it will depend on the .cfg file, if it
-	//is on the InitVariables it will always force it regardless of the .cfg
-	m_v4ClearColor = vector4(0.4f, 0.6f, 0.9f, 0.0f);
-	m_pSystem->SetWindowResolution(RESOLUTIONS::C_1280x720_16x9_HD);
-	//m_pSystem->SetWindowFullscreen(); //Sets the window to be fullscreen
-	//m_pSystem->SetWindowBorderless(true); //Sets the window to not have borders
+	super::InitWindow("W7R_SLERP_DEMO"); // Window Name
 }
 
 void AppClass::InitVariables(void)
 {
-	//Reset the selection to -1, -1
-	m_selection = std::pair<int, int>(-1, -1);
 	//Set the camera position
 	m_pCameraMngr->SetPositionTargetAndView(
 		vector3(0.0f, 2.5f, 15.0f),//Camera position
 		vector3(0.0f, 2.5f, 0.0f),//What Im looking at
 		REAXISY);//What is up
 	//Load a model onto the Mesh manager
-	m_pMeshMngr->LoadModel("Minecraft\\Creeper.bto", "Creeper");
+	m_pMeshMngr->LoadModel("Minecraft\\Cow.obj", "Cow");
 }
 
 void AppClass::Update(void)
@@ -42,21 +32,23 @@ void AppClass::Update(void)
 	
 	//Set the model matrix for the first model to be the arcball
 	m_pMeshMngr->SetModelMatrix(ToMatrix4(m_qArcBall), 0);
-	
-	static float fTimer = 0.0f;
-	fTimer += m_pSystem->LapClock();
-	float fDuration = .5f; // for a 360 rotation wihout any hiccups
-	float fPercentage = MapValue(fTimer, 0.0f, fDuration, 0.0f, 1.0f);
 
-	glm::quat q1 = glm::angleAxis(0.0f,vector3(0.0f, 0.0f,1.0f));
-	quaternion q2 = glm::angleAxis(180.0f, vector3(0.0f, 0.0f, 1.0f));
-	//quaternion q3 = glm::angleAxis(90.0f, vector3(1.0f, 0.0f, 0.0f)); // it's a stretch but change to quat : ^)
-	//quaternion q3 = q1*q2;
-	quaternion q3 = glm::mix(q1, q2, fPercentage);
-	//fTimer += 0.01f;
+	//Create the quaternions to interpolate
+	glm::quat q1 = glm::angleAxis(0.0f, vector3(0.0f, 0.0f, 1.0f));
+	quaternion q2 = glm::angleAxis(359.0f, vector3(0.0f, 0.0f, 1.0f)); //if 360 there is a div by 0 somewhere
+	quaternion q3;
 	
-	m_pMeshMngr->SetModelMatrix(ToMatrix4(q3), "Creeper");
+	static float fTimer = 0.0f; //static timer to keep track
+	static int clockIndex = m_pSystem->GenClock();//generate a new clock in the system
+	fTimer += m_pSystem->LapClock(clockIndex);//get the delta time of that clock
 
+	float fCycleTime = 5.0f;// time the animation will take to perform
+	float fPercentage = MapValue(fTimer, 0.0f, fCycleTime, 0.0f, 1.0f); //map the value in a percentage scale
+
+	q3 = glm::mix(q1, q2, fPercentage); //slerp the quaternions
+	
+	m_pMeshMngr->SetModelMatrix(ToMatrix4(q3), "Cow");//transform the quaternion to a matrix and assign it to the model
+	
 	//Adds all loaded instance to the render list
 	m_pMeshMngr->AddSkyboxToRenderList();
 	m_pMeshMngr->AddInstanceToRenderList("ALL");
@@ -66,10 +58,11 @@ void AppClass::Update(void)
 	//print info into the console
 	//printf("FPS: %d            \r", nFPS);//print the Frames per Second
 	//Print info on the screen
+	m_pMeshMngr->PrintLine("");
 	m_pMeshMngr->PrintLine(m_pSystem->GetAppName(), REYELLOW);
 
-	m_pMeshMngr->Print("Selection: ");
-	m_pMeshMngr->PrintLine(m_pMeshMngr->GetInstanceGroupName(m_selection.first, m_selection.second), REYELLOW);
+	m_pMeshMngr->Print("Timer: ");
+	m_pMeshMngr->PrintLine(std::to_string(fTimer), REYELLOW);
 	
 	m_pMeshMngr->Print("FPS:");
 	m_pMeshMngr->Print(std::to_string(nFPS), RERED);
