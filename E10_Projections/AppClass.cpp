@@ -14,11 +14,17 @@ void AppClass::InitVariables(void)
 	m_pCylinder->GenerateCylinder(1.0f, 1.0f, 10, REGREEN);
 
 	//Calculate the first projections
+<<<<<<< HEAD
 	m_m4Projection = glm::perspective(45.0f, 1080.0f / 768.0f, 0.01f, 1000.0f); // 1st arg = fov angle 2nd arg = width/height of view relative to window (x,y) 3rd/4th arg = how close/far can cam see (really stop rendering if not between these two planes)
 	//m_m4Projection = glm::ortho(0.0f, 10.0f, 0.0f, 10.0f, 0.01f, 1000.0f); //does not skew or affect obj appearance in anyway
 	m_m4View = glm::lookAt(glm::vec3(0.0f, 0.0f, 15.0f), glm::vec3(0.0f, 0.0f, 14.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // vec1(eye)= where camera is located, vec2(center) = what (direction/position) looking at, vec3 = which way "up" is
 	//if up is 0,0,1 (view and up are aligned) get error because it's trying to dot the same vec/axis
 
+=======
+	//m_m4Projection = glm::perspective(45.0f, 1080.0f / 768.0f, 0.01f, 1000.0f);
+	m_m4Projection = glm::ortho(-10.80f, 10.80f, -7.68f, 7.68f, 0.01f, 1000.0f);
+	m_m4View = glm::lookAt(glm::vec3(0.0f, 0.0f, 15.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+>>>>>>> 1f0255ccf433290ba131bbf9af961a9c4ddf110f
 }
 
 void AppClass::Update(void)
