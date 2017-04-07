@@ -52,4 +52,18 @@ MyBoundingSphereClass::MyBoundingSphereClass(std::vector<vector3> vertexList)
 			m_fRadius = distance;
 	}
 	*/
+	m_pMeshMngr = MeshManagerSingleton::GetInstance();
+}
+
+void MyBoundingSphereClass::RenderSphere()
+{
+	m_pMeshMngr->AddSphereToRenderList(
+		glm::translate(m_v3Center) *
+		glm::scale(vector3(m_fRadius) * 2.0f), RERED, WIRE);
+	
+}
+
+void MyBoundingSphereClass::SetModelMatrix(matrix4 a_m4ToWorld) {
+	m_m4ToWorld = a_m4ToWorld;
+	m_v3Center = vector3(m_m4ToWorld * vector4(m_v3Center, 1.0f));
 }
