@@ -1,56 +1,77 @@
 #include "AppClass.h"
 void AppClass::InitWindow(String a_sWindowName)
 {
-	super::InitWindow("E06s - 3D Transformations");
-	m_v4ClearColor = vector4(0.0f, 0.0f, 0.0f, 0.0f);
+	super::InitWindow("Bounding Spheres DEMO");
 }
+
+MyCameraClass* MyCameraClass::instance = nullptr;
 
 void AppClass::InitVariables(void)
 {
-	//Sets the camera
-	m_pCameraMngr->SetPositionTargetAndView(vector3(0.0f, 0.0f, 15.0f), vector3(0.0f, 0.0f, 0.0f), REAXISY);
-
-	m_pCube = new PrimitiveClass();
+	//generate cone
 	m_pCone = new PrimitiveClass();
-	m_pCylinder = new PrimitiveClass();
-	m_pTube = new PrimitiveClass();
-	m_pSphere = new PrimitiveClass();
-	m_pTorus = new PrimitiveClass();
+	m_pCone->GenerateCone(1.0f, 1.0f, 10, RERED);
+	//Set the camera position
+	m_pCameraMngr->SetPositionTargetAndView(
+		vector3(0.0f, 2.5f, 15.0f),//Camera position
+		vector3(0.0f, 2.5f, 0.0f),//What Im looking at
+		REAXISY);//What is up
+	//Load a model onto the Mesh manager
+	//m_pMeshMngr->LoadModel("Minecraft\\Zombie.obj", "Zombie");
+	//m_pBS0 = new MyBoundingSphereClass(m_pMeshMngr->GetVertexList("Zombie"));
+	
+	
+	// create instance of camera
+	m_pCamera = MyCameraClass::GetInstance();
 
-	//Initializing the primitives
-	m_pCube->GenerateCube(0.5f, RERED);
-	m_pCone->GenerateCone(0.5f, 0.5f, 10, REGREEN);
-	m_pCylinder->GenerateCylinder(0.5f, 0.5f, 10, REBLUE);
-	m_pTube->GenerateTube(0.5f, 0.25f, 0.5f, 10, REBROWN);
-	m_pSphere->GenerateSphere(0.5f, 5, REWHITE);
-	m_pTorus->GenerateTorus(0.5f, 0.25f, 10, 10, REYELLOW);
+	//set position, target, up
+	m_pCamera->SetPosition(vector3(0.0f, 0.0f, 15.0f));
+	m_pCamera->SetTarget(vector3(0.0f, 0.0f, 0.0f));
+	m_pCamera->SetUp(vector3(0.0f, 1.0f, 0.0f));
+	m_pCamera->SetView();
 }
 
 void AppClass::Update(void)
 {
-	//This matrices will just place the objects int the right spots
-	m_m4Cube = glm::translate(IDENTITY_M4, vector3(2.0f, 0.0f, 0.0f));
-	m_m4Cone = glm::translate(IDENTITY_M4, vector3(0.0f, 2.0f, 0.0f));
-	m_m4Cylinder = glm::translate(IDENTITY_M4, vector3(-2.0f, 0.0f, 0.0f));
-	m_m4Tube = glm::translate(IDENTITY_M4, vector3(0.0f, -2.0f, 0.0f));
-	m_m4Sphere = glm::translate(IDENTITY_M4, vector3(2.5f, 2.5f, 0.0f));
-	m_m4Torus = glm::translate(IDENTITY_M4, vector3(0.0f, 0.0f, 0.0f));
+	//Update the system's time
+	m_pSystem->UpdateTime();
 
-	//This matrices will scale them to the right size
-	m_m4Cube = glm::scale(m_m4Cube, vector3(2.0f, 2.0f, 2.0f));
-	m_m4Cone = glm::scale(m_m4Cone, vector3(2.0f, 2.0f, 2.0f));
-	m_m4Cylinder = glm::scale(m_m4Cylinder, vector3(2.0f, 2.0f, 2.0f));
-	m_m4Tube = glm::scale(m_m4Tube, vector3(2.0f, 2.0f, 2.0f));
-	m_m4Sphere = glm::scale(m_m4Sphere, vector3(2.0f, 2.0f, 2.0f));
-	m_m4Torus = glm::scale(m_m4Torus, vector3(2.0f, 2.0f, 2.0f));
+	//Update the mesh manager's time without updating for collision detection
+	m_pMeshMngr->Update();
+
+	//First person camera movement
+	if (m_bFPC == true)
+		CameraRotation();
+
+	//Call the arcball method
+	ArcBall();
+
+	//set the translate to create the transform matrix
+	matrix4 m4Translate = glm::translate(m_v3Position);
+	//m_pMeshMngr->SetModelMatrix(m4Translate, "Zombie"); //set the matrix to the model
+	//m_pBS0->RenderSphere();//render the bounding sphere
 
 	//Adds all loaded instance to the render list
-	
+	m_pMeshMngr->AddSkyboxToRenderList();
+	m_pMeshMngr->AddInstanceToRenderList("ALL");
+
 	//Indicate the FPS
 	int nFPS = m_pSystem->GetFPS();
+	//print info into the console
+	//printf("FPS: %d            \r", nFPS);//print the Frames per Second
 	//Print info on the screen
-	m_pMeshMngr->PrintLine("");
-	m_pMeshMngr->PrintLine(m_pSystem->GetAppName(), REYELLOW);
+	m_pMeshMngr->PrintLine("\n" + m_pSystem->GetAppName(), REYELLOW);
+
+	/*m_pMeshMngr->Print("Radius: ");
+	m_pMeshMngr->PrintLine(std::to_string(m_pBS0->m_fRadius), RERED);
+	m_pMeshMngr->Print("Center: (");
+	m_pMeshMngr->Print(std::to_string(m_pBS0->m_v3CenterGlobal.x), RERED);
+	m_pMeshMngr->Print(" , ");
+	m_pMeshMngr->Print(std::to_string(m_pBS0->m_v3CenterGlobal.y), RERED);
+	m_pMeshMngr->Print(" , ");
+	m_pMeshMngr->Print(std::to_string(m_pBS0->m_v3CenterGlobal.z), RERED);
+	m_pMeshMngr->PrintLine(")");*/
+
 	m_pMeshMngr->Print("FPS:");
 	m_pMeshMngr->Print(std::to_string(nFPS), RERED);
 }
@@ -59,34 +80,20 @@ void AppClass::Display(void)
 {
 	//clear the screen
 	ClearScreen();
-	
-	//Matrices from the camera
-	matrix4 m4Projection = m_pCameraMngr->GetProjectionMatrix();
-	matrix4 m4View = m_pCameraMngr->GetViewMatrix();
-
-	//Renders the meshes using the specified position given by the matrix and in the specified color
-	m_pCube->Render(m4Projection, m4View, m_m4Cube);
-	m_pCone->Render(m4Projection, m4View, m_m4Cone);
-	m_pCylinder->Render(m4Projection, m4View, m_m4Cylinder);
-	m_pTube->Render(m4Projection, m4View, m_m4Tube);
-	m_pSphere->Render(m4Projection, m4View, m_m4Sphere);
-	m_pTorus->Render(m4Projection, m4View, m_m4Torus);
-
 	//Render the grid based on the camera's mode:
 	m_pMeshMngr->AddGridToRenderListBasedOnCamera(m_pCameraMngr->GetCameraMode());
+	m_pCone->Render(
+		m_pCamera->GetProjection(true), m_pCamera->GetView(), IDENTITY_M4
+	);
 	m_pMeshMngr->Render(); //renders the render list
+	
 	m_pMeshMngr->ClearRenderList(); //Reset the Render list after render
 	m_pGLSystem->GLSwapBuffers(); //Swaps the OpenGL buffers
 }
 
 void AppClass::Release(void)
 {
-	SafeDelete(m_pCube);
 	SafeDelete(m_pCone);
-	SafeDelete(m_pCylinder);
-	SafeDelete(m_pTube);
-	SafeDelete(m_pSphere);
-	SafeDelete(m_pTorus);
-
+	MyCameraClass::ReleaseInstance();
 	super::Release(); //release the memory of the inherited fields
 }

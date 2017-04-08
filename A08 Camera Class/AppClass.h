@@ -1,36 +1,26 @@
 /*----------------------------------------------
 Programmer: Alberto Bobadilla (labigm@gmail.com)
-Date: 2015/09
+Date: 2015/09 (Last Modified on: 15/11)
 ----------------------------------------------*/
 #ifndef __APPLICATION_H_
 #define __APPLICATION_H_
 
 #include "RE\ReEngAppClass.h"
 #include <SFML\Graphics.hpp>
+#include "MyCameraClass.h"
 
 using namespace ReEng; //Using ReEng namespace to use all the classes in the dll
 
 class AppClass : public ReEngAppClass
 {
-	PrimitiveClass* m_pCube = nullptr;
+	vector3 m_v3Position;
+	MyCameraClass* m_pCamera;
 	PrimitiveClass* m_pCone = nullptr;
-	PrimitiveClass* m_pCylinder = nullptr;
-	PrimitiveClass* m_pTube = nullptr;
-	PrimitiveClass* m_pSphere = nullptr;
-	PrimitiveClass* m_pTorus = nullptr;
-
-	matrix4 m_m4Cube;
-	matrix4 m_m4Cone;
-	matrix4 m_m4Cylinder;
-	matrix4 m_m4Tube;
-	matrix4 m_m4Sphere;
-	matrix4 m_m4Torus;
-
 public:
 	typedef ReEngAppClass super;
 	/*
 	USAGE: Constructor
-	ARGUMENTS:
+	ARGUMENTS: 
 	- HINSTANCE hInstance -> Instance of the window
 	- LPWSTR lpCmdLine -> Command line
 	- int nCmdShow -> Number or arguments
@@ -101,5 +91,9 @@ public:
 	*/
 	virtual void Release(void) final;
 };
-
+/*
+USAGE:
+ARGUMENTS: ---
+OUTPUT: ---
+*/
 #endif //__APPLICATION_H_

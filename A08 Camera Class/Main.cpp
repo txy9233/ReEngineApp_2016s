@@ -5,6 +5,7 @@ Date: 2015/08
 
 #include "AppClass.h"
 
+
 //Initializing the main program using winappi
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
 {

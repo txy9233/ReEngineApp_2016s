@@ -11,9 +11,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{460441D5-593C-4764-894A-CD382C9C52B2}</ProjectGuid>
-    <RootNamespace>A08_CameraClass</RootNamespace>
-    <ProjectName>A08_CameraClass</ProjectName>
+    <ProjectGuid>{A0EB1751-FE39-4E54-A1A4-26651B11152F}</ProjectGuid>
+    <RootNamespace>A08 Camera Class</RootNamespace>
+    <ProjectName>A08 Camera Class</ProjectName>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -105,19 +105,18 @@ xcopy "$(SolutionDir)include\RE\Shaders" "$(SolutionDir)_Binary\Shaders" /y</Com
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\res\Resource.h" />
-    <ClInclude Include="AppClass.h" />
-    <ClInclude Include="MyCamera.h" />
-    <ClInclude Include="MyCameraManager.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="..\res\BTO.rc" />
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="AppClass.cpp" />
     <ClCompile Include="AppClassControls.cpp" />
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="MyCameraManager.cpp" />
+    <ClCompile Include="MyCameraClass.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\res\Resource.h" />
+    <ClInclude Include="AppClass.h" />
+    <ClInclude Include="MyCameraClass.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\res\BTO.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

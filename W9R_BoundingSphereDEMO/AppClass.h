@@ -17,7 +17,6 @@ class AppClass : public ReEngAppClass
 	MyBoundingSphereClass* m_pBS0;
 public:
 	typedef ReEngAppClass super;
-
 	/*
 	USAGE: Constructor
 	ARGUMENTS: 
