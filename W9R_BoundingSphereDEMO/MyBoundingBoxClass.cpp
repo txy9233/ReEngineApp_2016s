@@ -9,44 +9,50 @@ MyBoundingBoxClass::MyBoundingBoxClass(std::vector<vector3> vertexList)
 	if (vertexList.size() < 1)
 		return;
 
-	vector3 v3Min = vertexList[0];
-	vector3 v3Max = vertexList[0];
+	m_v3Min = vertexList[0];
+	m_v3Max = vertexList[0];
 
 	for (int i = 1; i < vertexList.size(); i++)
 	{
-		if (v3Min.x > vertexList[i].x)
+		if (m_v3Min.x > vertexList[i].x)
 		{
-			v3Min.x = vertexList[i].x;
+			m_v3Min.x = vertexList[i].x;
 		}
-		else if (v3Max.x < vertexList[i].x)
+		else if (m_v3Max.x < vertexList[i].x)
 		{
-			v3Max.x = vertexList[i].x;
-		}
-
-		if (v3Min.y > vertexList[i].y)
-		{
-			v3Min.y = vertexList[i].y;
-		}
-		else if (v3Max.y < vertexList[i].y)
-		{
-			v3Max.y = vertexList[i].y;
+			m_v3Max.x = vertexList[i].x;
 		}
 
-		if (v3Min.z > vertexList[i].z)
+		if (m_v3Min.y > vertexList[i].y)
 		{
-			v3Min.z = vertexList[i].z;
+			m_v3Min.y = vertexList[i].y;
 		}
-		else if (v3Max.z < vertexList[i].z)
+		else if (m_v3Max.y < vertexList[i].y)
 		{
-			v3Max.z = vertexList[i].z;
+			m_v3Max.y = vertexList[i].y;
+		}
+
+		if (m_v3Min.z > vertexList[i].z)
+		{
+			m_v3Min.z = vertexList[i].z;
+		}
+		else if (m_v3Max.z < vertexList[i].z)
+		{
+			m_v3Max.z = vertexList[i].z;
 		}
 	}
 
-	m_v3CenterLocal = m_v3CenterGlobal = (v3Max + v3Min) / 2.0f;
-
-	m_fRadius = glm::distance(m_v3CenterGlobal, v3Max);
-
+	m_v3CenterLocal = m_v3CenterGlobal = (m_v3Max + m_v3Min) / 2.0f;
+	m_fRadius = glm::distance(m_v3CenterGlobal, m_v3Max);
 	m_pMeshMngr = MeshManagerSingleton::GetInstance();
+	m_v3Size = m_v3Max - m_v3Min;
+
+	m_v3MinG = m_v3Min;
+	m_v3MaxG = m_v3Max;
+	
+	//m_v3Size.x = glm::distance(vector3(m_v3Min.x, 0.0, 0.0), vector3(m_v3Max.x, 0.0, 0.0));
+	//m_v3Size.y = glm::distance(vector3(0.0, m_v3Min.y, 0.0), vector3(0.0, m_v3Max.y, 0.0));
+	//m_v3Size.z = glm::distance(vector3(0.0, 0.0, m_v3Min.z), vector3(0.0, 0.0, m_v3Max.z));
 }
 
 void MyBoundingBoxClass::RenderSphere()
@@ -55,9 +61,11 @@ void MyBoundingBoxClass::RenderSphere()
 	if (true == m_bColliding)
 		v3Color = RERED;
 
-	m_pMeshMngr->AddSphereToRenderList(
-		glm::translate(m_v3CenterGlobal) *
-		glm::scale(vector3(m_fRadius) * 2.0f), v3Color, WIRE);
+	m_pMeshMngr->AddCubeToRenderList(
+		m_m4ToWorld *
+		glm::translate(m_v3CenterLocal) *
+		glm::scale(m_v3Size),
+		v3Color, WIRE);
 }
 void MyBoundingBoxClass::SetModelMatrix(matrix4 a_m4ToWorld)
 {
@@ -66,13 +74,28 @@ void MyBoundingBoxClass::SetModelMatrix(matrix4 a_m4ToWorld)
 
 	m_m4ToWorld = a_m4ToWorld;
 	m_v3CenterGlobal = vector3(m_m4ToWorld * vector4(m_v3CenterLocal, 1.0f));
+	m_v3MinG = vector3(m_m4ToWorld * vector4(m_v3Min, 1.0f));
+	m_v3MaxG = vector3(m_m4ToWorld * vector4(m_v3Max, 1.0f));
 }
 
 bool MyBoundingBoxClass::IsColliding(MyBoundingBoxClass* a_other)
 {
-	float fDistance = glm::distance(this->m_v3CenterGlobal, a_other->m_v3CenterGlobal);
-	float fRadiiSum = this->m_fRadius + a_other->m_fRadius;
-	return fDistance < fRadiiSum;
+	if (this->m_v3MaxG.x < a_other->m_v3MinG.x)
+		return false;
+	if (this->m_v3MinG.x > a_other->m_v3MaxG.x)
+		return false;
+
+	if (this->m_v3MaxG.y < a_other->m_v3MinG.y)
+		return false;
+	if (this->m_v3MinG.y > a_other->m_v3MaxG.y)
+		return false;
+
+	if (this->m_v3MaxG.z < a_other->m_v3MinG.z)
+		return false;
+	if (this->m_v3MinG.z > a_other->m_v3MaxG.z)
+		return false;
+
+	return true;
 }
 
 void MyBoundingBoxClass::SetColliding(bool input) { m_bColliding = input; }

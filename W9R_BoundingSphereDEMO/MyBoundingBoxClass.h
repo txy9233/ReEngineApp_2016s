@@ -10,6 +10,14 @@ private:
 	matrix4 m_m4ToWorld = IDENTITY_M4; //matrix that takes you from local to global space
 	MeshManagerSingleton* m_pMeshMngr = nullptr; //for drawing the sphere
 	bool m_bColliding = false;
+
+	vector3 m_v3Max;
+	vector3 m_v3Min;
+	vector3 m_v3Size;
+
+	vector3 m_v3MaxG;
+	vector3 m_v3MinG;
+	vector3 m_v3SizeG;
 public:
 	/*
 	Sets Colliding
