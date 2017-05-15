@@ -66,6 +66,8 @@ void AppClass::Update(void)
 	
 	m_pMeshMngr->Print("FPS:");
 	m_pMeshMngr->Print(std::to_string(nFPS), RERED);
+
+	std::cout << fTimer << std::endl;
 }
 
 void AppClass::Display(void)
